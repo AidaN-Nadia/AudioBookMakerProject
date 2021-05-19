@@ -45,7 +45,7 @@ namespace AudioBookMakerProject
                 {
                     doneFics.Add(add);
                     address = add;
-                    test(address);
+                    hubMethod(address);
                 }
             }
 
@@ -60,7 +60,7 @@ namespace AudioBookMakerProject
 
         }
 
-        private List<string> test(string e)
+        private List<string> hubMethod(string e)
         {
 
             List<string> toRet = new List<string>();
