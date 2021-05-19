@@ -1,0 +1,12 @@
+C:\Users\livei\source\repos\AudioBookMakerProject\AudioBookMakerProject\bin\Debug\net5.0\AudioBookMakerProject.deps.json
+C:\Users\livei\source\repos\AudioBookMakerProject\AudioBookMakerProject\bin\Debug\net5.0\AudioBookMakerProject.dll
+C:\Users\livei\source\repos\AudioBookMakerProject\AudioBookMakerProject\bin\Debug\net5.0\ref\AudioBookMakerProject.dll
+C:\Users\livei\source\repos\AudioBookMakerProject\AudioBookMakerProject\bin\Debug\net5.0\AudioBookMakerProject.pdb
+C:\Users\livei\source\repos\AudioBookMakerProject\AudioBookMakerProject\obj\Debug\net5.0\AudioBookMakerProject.csprojAssemblyReference.cache
+C:\Users\livei\source\repos\AudioBookMakerProject\AudioBookMakerProject\obj\Debug\net5.0\AudioBookMakerProject.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\livei\source\repos\AudioBookMakerProject\AudioBookMakerProject\obj\Debug\net5.0\AudioBookMakerProject.AssemblyInfoInputs.cache
+C:\Users\livei\source\repos\AudioBookMakerProject\AudioBookMakerProject\obj\Debug\net5.0\AudioBookMakerProject.AssemblyInfo.cs
+C:\Users\livei\source\repos\AudioBookMakerProject\AudioBookMakerProject\obj\Debug\net5.0\AudioBookMakerProject.csproj.CoreCompileInputs.cache
+C:\Users\livei\source\repos\AudioBookMakerProject\AudioBookMakerProject\obj\Debug\net5.0\AudioBookMakerProject.dll
+C:\Users\livei\source\repos\AudioBookMakerProject\AudioBookMakerProject\obj\Debug\net5.0\ref\AudioBookMakerProject.dll
+C:\Users\livei\source\repos\AudioBookMakerProject\AudioBookMakerProject\obj\Debug\net5.0\AudioBookMakerProject.pdb
