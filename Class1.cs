@@ -164,7 +164,9 @@ namespace AudioBookMakerProject
                 
                 using (File.Create(finalTitle)) ;
                 FileStream fs = new FileStream(finalTitle, FileMode.Open);
-                Combine(toRet, fs);
+
+                Concatenate(fs, toRet);
+                //Combine(toRet, fs);
 
                 //for (int j = toRet.Length - 1; j >= 0; j--)
                 //{
@@ -290,6 +292,20 @@ namespace AudioBookMakerProject
                 Console.WriteLine("Audio content written to file \"" + number + "output.mp3\"");
                 return currentDir + "\\" + number + "output.mp3";
             }
+        }
+
+
+
+
+        public static void Concatenate(Stream output, params string[] mp3filenames)
+        {
+            //Stream w = File.OpenWrite("D:\\out.mp3");
+
+            foreach (string filename in mp3filenames)
+                File.OpenRead(filename).CopyTo(output);
+
+            output.Flush();
+            output.Close();
         }
 
         private void Combine(string[] inputFiles, Stream output)
