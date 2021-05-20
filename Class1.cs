@@ -9,7 +9,7 @@ using System.Runtime;
 using System.Runtime.InteropServices.ComTypes;
 using Google.Cloud.TextToSpeech.V1;
 using NAudio.Wave;
-
+using System.Text.RegularExpressions;
 
 namespace AudioBookMakerProject
 {
@@ -106,8 +106,14 @@ namespace AudioBookMakerProject
             HtmlNode node3 = node2.SelectSingleNode("//h2[@class='title heading']");
 
             //HtmlNode node3 = node2.Descendants().Where(n => n.HasClass("title heading")).First();
-            return node3.InnerText.Trim();
+            return GetValidFileName(node3.InnerText.Trim());
             //return null;
+        }
+        private string GetValidFileName(string fileName)
+        {
+            // remove any invalid character from the filename.  
+            String ret = Regex.Replace(fileName.Trim(), "[^A-Za-z0-9_. ]+", "");
+            return ret.Replace(" ", String.Empty);
         }
 
         private void createDir()
@@ -128,6 +134,8 @@ namespace AudioBookMakerProject
                 i++;
             }
         }
+
+
 
         //https://dotnetfiddle.net/wA4jnc by Anjan Kant
         private List<string> idSplit(string htmlIn)
@@ -168,7 +176,7 @@ namespace AudioBookMakerProject
                 Concatenate(fs, toRet);
                 //Combine(toRet, fs);
 
-                //for (int j = toRet.Length - 1; j >= 0; j--)
+                //for (int j = 0; j < toRet.Length; j++)
                 //{
                 //    File.Delete(toRet[j]);
                 //}
@@ -288,6 +296,7 @@ namespace AudioBookMakerProject
                 {
 
                     response.AudioContent.WriteTo(output);
+                    output.Close();
                 }
                 Console.WriteLine("Audio content written to file \"" + number + "output.mp3\"");
                 return currentDir + "\\" + number + "output.mp3";
@@ -302,10 +311,26 @@ namespace AudioBookMakerProject
             //Stream w = File.OpenWrite("D:\\out.mp3");
 
             foreach (string filename in mp3filenames)
+            {
                 File.OpenRead(filename).CopyTo(output);
-
+                
+            }
             output.Flush();
             output.Close();
+
+            //foreach (string filename in mp3filenames) {
+            //    try{ 
+
+            //        File.Delete(filename);
+            //    }
+            //    catch{  //or maybe in finally
+
+            //        GC.Collect(); //kill object that keep the file. I think dispose will do the trick as well.
+            //        System.Threading.Thread.Sleep(500); //Wait for object to be killed.
+            //        File.Delete(filename); //File can be now deleted
+            //    }
+            //    File.Delete(filename);
+            //}
         }
 
         private void Combine(string[] inputFiles, Stream output)
