@@ -10,6 +10,7 @@ using System.Runtime.InteropServices.ComTypes;
 using Google.Cloud.TextToSpeech.V1;
 using NAudio.Wave;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace AudioBookMakerProject
 {
@@ -21,6 +22,7 @@ namespace AudioBookMakerProject
         private string activeDir;
         private List<string> doneFics = new List<string>();
         private string currentDir;
+        private string fileOutput;
         public Class1()
         {
             activeDir = Directory.GetCurrentDirectory();
@@ -34,13 +36,12 @@ namespace AudioBookMakerProject
         }
 
 
-        public void mainCall(string add)
+        public string mainCall(string add)
         {
             Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", "C:\\Users\\livei\\Downloads\\text-to-speech-312622-3fe96c3d67ea.json");
 
             if (add.Contains("archiveofourown.org/works/"))
             {
-                //Console.WriteLine(args[0]);
                 if (!doneFics.Contains(add))
                 {
                     doneFics.Add(add);
@@ -48,6 +49,8 @@ namespace AudioBookMakerProject
                     hubMethod(address);
                 }
             }
+
+            // testing links
 
             //"https://archiveofourown.org/works/30950015";
             //"https://archiveofourown.org/works/19762567/chapters/46780885"; - chapters, not working rn
@@ -57,7 +60,7 @@ namespace AudioBookMakerProject
             //String ad = "https://archiveofourown.org/works/16599134";
             //address = ad;
             //List<string> ee = test(ad);
-
+            return fileOutput;
         }
 
         private List<string> hubMethod(string e)
@@ -78,20 +81,7 @@ namespace AudioBookMakerProject
 
             createDir();
             
-
             toRet = idSplit(responseHtml);
-
-            //this line might be unneeded
-            //toRet = concat(toRet);e
-
-
-            //int j = 0;
-            ////Console.WriteLine("This is a test");
-            //foreach (string r in toRet)
-            //{
-            //    j++;
-            //    Console.WriteLine(j + "  " + r);
-            //}
 
             return toRet;
         }
@@ -102,12 +92,8 @@ namespace AudioBookMakerProject
             doc.LoadHtml(html);
             HtmlNode node = doc.DocumentNode.SelectSingleNode("//div[@id='workskin']");
             HtmlNode node2 = node.SelectSingleNode("//div[@class='preface group']");
-            //Console.WriteLine(node2.InnerText);
             HtmlNode node3 = node2.SelectSingleNode("//h2[@class='title heading']");
-
-            //HtmlNode node3 = node2.Descendants().Where(n => n.HasClass("title heading")).First();
             return GetValidFileName(node3.InnerText.Trim());
-            //return null;
         }
         private string GetValidFileName(string fileName)
         {
@@ -143,9 +129,7 @@ namespace AudioBookMakerProject
             doc = new HtmlDocument();
             doc.LoadHtml(htmlIn);
             HtmlNode node = doc.DocumentNode.SelectSingleNode("//div[@id='workskin']");
-            //Console.WriteLine(node.OuterHtml);
             HtmlNode head = fork(node);
-            //IEnumerable<HtmlNode> nodes = doc.DocumentNode.Descendants().Where(n => n.HasClass("chapter"));
 
             List<string> strHold = new List<string>();
             foreach (var item in head.Descendants())
@@ -166,6 +150,7 @@ namespace AudioBookMakerProject
                 i++;
             }
             string finalTitle = currentDir + "\\" + title + ".mp3";
+            fileOutput = finalTitle;
             
             if (toRet.Length > 1)
             {
@@ -176,10 +161,6 @@ namespace AudioBookMakerProject
                 Concatenate(fs, toRet);
                 //Combine(toRet, fs);
 
-                //for (int j = 0; j < toRet.Length; j++)
-                //{
-                //    File.Delete(toRet[j]);
-                //}
             }
             else
             {
@@ -188,7 +169,29 @@ namespace AudioBookMakerProject
 
             return strHold;
         }
-        private HtmlNode fork(HtmlNode h)
+        
+    //may not be needed any more
+
+    //public static bool IsFileLocked(FileInfo file)
+    //{
+    //    FileStream stream = null;
+
+    //    try
+    //    {
+    //        stream = file.Open(FileMode.Open, FileAccess.ReadWrite, FileShare.None);
+    //    }
+    //    catch (IOException)
+    //    {
+    //        return true;
+    //    }
+    //    finally
+    //    {
+    //        if (stream != null)
+    //            stream.Close();
+    //    }
+    //    return false;
+    //}
+    private HtmlNode fork(HtmlNode h)
         {
             if (address.Contains("chapters"))
             {
@@ -261,7 +264,7 @@ namespace AudioBookMakerProject
         }
 
 
-
+        //This is from the google api documentation
         private string speak(string e, string number)
         {
             {
@@ -296,6 +299,7 @@ namespace AudioBookMakerProject
                 {
 
                     response.AudioContent.WriteTo(output);
+                    output.Flush();
                     output.Close();
                 }
                 Console.WriteLine("Audio content written to file \"" + number + "output.mp3\"");
@@ -304,51 +308,57 @@ namespace AudioBookMakerProject
         }
 
 
-
-
+        //https://stackoverflow.com/questions/8657915/delete-file-after-creation
         public static void Concatenate(Stream output, params string[] mp3filenames)
         {
-            //Stream w = File.OpenWrite("D:\\out.mp3");
-
             foreach (string filename in mp3filenames)
             {
-                File.OpenRead(filename).CopyTo(output);
+                using (FileStream fs = File.OpenRead(filename))
+                {
+                    fs.CopyTo(output);
+                }
                 
             }
             output.Flush();
             output.Close();
 
-            //foreach (string filename in mp3filenames) {
-            //    try{ 
-
-            //        File.Delete(filename);
-            //    }
-            //    catch{  //or maybe in finally
-
-            //        GC.Collect(); //kill object that keep the file. I think dispose will do the trick as well.
-            //        System.Threading.Thread.Sleep(500); //Wait for object to be killed.
-            //        File.Delete(filename); //File can be now deleted
-            //    }
-            //    File.Delete(filename);
-            //}
-        }
-
-        private void Combine(string[] inputFiles, Stream output)
-        {
-            foreach (string file in inputFiles)
+            foreach (string filename in mp3filenames)
             {
-                Mp3FileReader reader = new Mp3FileReader(file);
-                if ((output.Position == 0) && (reader.Id3v2Tag != null))
+                try
                 {
-                    output.Write(reader.Id3v2Tag.RawData, 0, reader.Id3v2Tag.RawData.Length);
+                    
+                    File.Delete(filename);
+                    Console.WriteLine(filename+ " was deleted successfully.");
                 }
-                Mp3Frame frame;
-                while ((frame = reader.ReadNextFrame()) != null)
+                catch
                 {
-                    output.Write(frame.RawData, 0, frame.RawData.Length);
+
+                    GC.Collect(); //kill object that keep the file. I think dispose will do the trick as well.
+                    System.Threading.Thread.Sleep(500); //Wait for object to be killed.
+                    File.Delete(filename); //File can be now deleted
                 }
+                File.Delete(filename);
             }
         }
+
+        //This is an old version that uses the NAudio package, which is not usable on android mobile devices
+        
+        //private void Combine(string[] inputFiles, Stream output)
+        //{
+        //    foreach (string file in inputFiles)
+        //    {
+        //        Mp3FileReader reader = new Mp3FileReader(file);
+        //        if ((output.Position == 0) && (reader.Id3v2Tag != null))
+        //        {
+        //            output.Write(reader.Id3v2Tag.RawData, 0, reader.Id3v2Tag.RawData.Length);
+        //        }
+        //        Mp3Frame frame;
+        //        while ((frame = reader.ReadNextFrame()) != null)
+        //        {
+        //            output.Write(frame.RawData, 0, frame.RawData.Length);
+        //        }
+        //    }
+        //}
     }
 
 }
